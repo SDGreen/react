@@ -23,6 +23,14 @@ function App() {
     setTitle("")
     setDescription("")
 
+    const response = fetch("https://3535-amethyst-wildcat-s99kimkz.ws-eu13.gitpod.io/new-entry", {
+      method: "POST",
+      body: JSON.stringify(newEvent),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+
   }
 
   return (
