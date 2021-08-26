@@ -1,11 +1,15 @@
 import './CalendarEntry.css';
+import {FaPencilAlt} from "react-icons/fa"
 
-function CalendarEntry({date, eventName, eventDescription}) {
+function CalendarEntry({event, setEventToEdit}) {
     return (
+    <div className="entry">
     <div>
-        <h1>{date}</h1>
-        <p>{eventName}</p>
-        <p>{eventDescription}</p>
+        <h1>{event.date}</h1>
+        <p>{event.name}</p>
+        <p>{event.description}</p>
+    </div>
+    <FaPencilAlt id="edit-button" onClick={() => setEventToEdit(event)}/>
     </div>
     );
   }

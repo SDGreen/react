@@ -2,28 +2,40 @@ import logo from './logo.svg';
 import './App.css';
 import CalendarEntry from './CalendarEntry/CalendarEntry.js';
 import CreateEvent from './CreateEvent/CreateEvent';
-import {useState} from "react"
+import {useState, useEffect} from "react"
+import ErrorPopup from './ErrorPopup/ErrorPopup';
+import EditEvent from './EditEvent/EditEvent';
 
 function App() {
   const [date, setDate] = useState("")
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [events, setEvents] = useState([])
+  const [errorMessage, setErrorMessage] = useState("")
+  const [eventToEdit, setEventToEdit] = useState({})
 
-  function addEvent() {
+  useEffect(() => {
+    fetch("http://localhost:5000/get-entries").then(response => {
+      response.json().then(data => {
+
+        if (data.status){
+          setEvents(data.message)
+        } else {
+          setErrorMessage(data.message)
+        }
+
+      })
+    })
+  }, [])
+  
+  async function addEvent() {
     const newEvent = {
       date: date,
       title: title,
       description: description
     }
-
-    setEvents([...events, newEvent])
-
-    setDate("")
-    setTitle("")
-    setDescription("")
-
-    const response = fetch("https://3535-amethyst-wildcat-s99kimkz.ws-eu13.gitpod.io/new-entry", {
+    
+    const response = await fetch("http://localhost:5000/new-entry", {
       method: "POST",
       body: JSON.stringify(newEvent),
       headers: {
@@ -31,18 +43,33 @@ function App() {
       },
     })
 
+    const data = await response.json()
+
+    if (data.status){
+      setEvents([...events, newEvent])
+      setDate("")
+      setTitle("")
+      setDescription("")
+      setErrorMessage("")
+    } else {
+      setErrorMessage(data.message)
+    }
+
+
+   
   }
 
   return (
     <div className="App">
+      <ErrorPopup message={errorMessage}/>
       <div id="newDiv">
+        <EditEvent event={eventToEdit} setErrorMessage={setErrorMessage} setEventToEdit={setEventToEdit}/>
           <h3>Calendar</h3>
           {events.map((event) => {
             return( 
-              <CalendarEntry 
-                date={event.date} 
-                eventName={event.title} 
-                eventDescription={event.description}
+              <CalendarEntry
+                event={event}
+                setEventToEdit={setEventToEdit}
               />
             )
           })}
